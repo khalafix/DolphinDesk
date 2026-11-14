@@ -1,6 +1,7 @@
 /build
 /target
 .vscode
+.help
 .idea
 .DS_Store
 .env
