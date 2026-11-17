@@ -966,6 +966,12 @@ def build_flutter_arch_manjaro(version, features):
     system2('HBB=`pwd`/.. FLUTTER=1 makepkg -f')
 
 
+def flutter_windows_binary_name():
+    cmake = Path('flutter/windows/CMakeLists.txt').read_text(encoding='utf-8')
+    m = re.search(r'set\(BINARY_NAME\s+"([^"]+)"\)', cmake)
+    return m.group(1) if m else 'rustdesk'
+
+
 def build_flutter_windows(version, features, skip_portable_pack):
     if not skip_cargo:
         system2(f'cargo build --locked --features {features} --lib --release')
@@ -973,16 +979,21 @@ def build_flutter_windows(version, features, skip_portable_pack):
             print("cargo build failed, please check rust source code.")
             exit(-1)
     os.chdir('flutter')
-    system2('flutter build windows --release')
+    # e.g. FLUTTER_BUILD_ARGS="--dart-define=DOLPHINDESK_LITE=true"
+    system2(f'flutter build windows --release {os.environ.get("FLUTTER_BUILD_ARGS", "")}')
     os.chdir('..')
     shutil.copy2('target/release/deps/dylib_virtual_display.dll',
                  flutter_build_dir_2)
     if skip_portable_pack:
         return
+    binary_name = flutter_windows_binary_name()
     os.chdir('libs/portable')
-    system2('pip3 install -r requirements.txt')
+    # The running interpreter, because `python3`/`pip3` on Windows may be the
+    # Store alias or belong to another Python install.
+    if subprocess.run([sys.executable, '-c', 'import brotli']).returncode != 0:
+        system2(f'"{sys.executable}" -m pip install -r requirements.txt')
     system2(
-        f'python3 ./generate.py -f ../../{flutter_build_dir_2} -o . -e ../../{flutter_build_dir_2}/rustdesk.exe')
+        f'"{sys.executable}" ./generate.py -f ../../{flutter_build_dir_2} -o . -e ../../{flutter_build_dir_2}/{binary_name}.exe')
     os.chdir('../..')
     if os.path.exists('./rustdesk_portable.exe'):
         os.replace('./target/release/rustdesk-portable-packer.exe',
@@ -992,9 +1003,9 @@ def build_flutter_windows(version, features, skip_portable_pack):
                   './rustdesk_portable.exe')
     print(
         f'output location: {os.path.abspath(os.curdir)}/rustdesk_portable.exe')
-    os.rename('./rustdesk_portable.exe', f'./rustdesk-{version}-install.exe')
+    os.replace('./rustdesk_portable.exe', f'./{binary_name}-{version}-install.exe')
     print(
-        f'output location: {os.path.abspath(os.curdir)}/rustdesk-{version}-install.exe')
+        f'output location: {os.path.abspath(os.curdir)}/{binary_name}-{version}-install.exe')
 
 
 def main():

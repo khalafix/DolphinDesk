@@ -3866,7 +3866,7 @@ Widget loadIcon(double size) {
       width: size,
       height: size,
       errorBuilder: (ctx, error, stackTrace) => SvgPicture.asset(
-            'assets/icon.svg',
+            'assets/Dolphindesk-bg-white.svg',
             width: size,
             height: size,
           ));

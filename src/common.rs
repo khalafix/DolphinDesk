@@ -2507,6 +2507,7 @@ pub fn rustdesk_interval(i: Interval) -> ThrottledInterval {
 }
 
 pub fn load_custom_client() {
+    apply_dolphindesk_defaults();
     #[cfg(debug_assertions)]
     if let Ok(data) = std::fs::read_to_string("./custom.txt") {
         read_custom_client(data.trim());
@@ -2526,6 +2527,23 @@ pub fn load_custom_client() {
         };
         read_custom_client(&data.trim());
     }
+}
+
+const DOLPHINDESK_APP_NAME: &str = "DolphinDesk";
+const DOLPHINDESK_RENDEZVOUS_SERVER: &str = "193.186.32.178";
+const DOLPHINDESK_KEY: &str = "PCuv2hTTL46KcIGpp2XUeunCdJW9rS2Ku1XoQtddQ1E=";
+
+// Runs before any config is read, because the app name selects the config
+// directory, service name and IPC path. The server goes into the defaults
+// (not the overrides), so an admin can still point a machine elsewhere.
+fn apply_dolphindesk_defaults() {
+    *config::APP_NAME.write().unwrap() = DOLPHINDESK_APP_NAME.to_owned();
+    let mut defaults = config::DEFAULT_SETTINGS.write().unwrap();
+    defaults.insert(
+        keys::OPTION_CUSTOM_RENDEZVOUS_SERVER.to_owned(),
+        DOLPHINDESK_RENDEZVOUS_SERVER.to_owned(),
+    );
+    defaults.insert(keys::OPTION_KEY.to_owned(), DOLPHINDESK_KEY.to_owned());
 }
 
 fn read_custom_client_advanced_settings(

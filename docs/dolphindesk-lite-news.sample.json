@@ -1,0 +1,17 @@
+{
+  "items": [
+    {
+      "title": "به‌روزرسانی سامانه پشتیبانی",
+      "summary": "از این هفته ساعات پاسخگویی پشتیبانی از ۸ صبح تا ۸ شب افزایش یافت.",
+      "date": "۱۴۰۵/۰۸/۲۳",
+      "tag": "اطلاعیه",
+      "url": "https://example.com/news/support-hours"
+    },
+    {
+      "title": "Scheduled maintenance",
+      "summary": "Services may be briefly unavailable on Friday from 22:00 to 23:00.",
+      "date_published": "2026-11-14T10:00:00Z",
+      "tag": "Maintenance"
+    }
+  ]
+}
